@@ -1,0 +1,12 @@
+---
+namespace: default
+namePrefix: wallabag-
+labels:
+  - pairs:
+      app: wallabag
+    includeSelectors: true
+resources:
+  - cluster.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml

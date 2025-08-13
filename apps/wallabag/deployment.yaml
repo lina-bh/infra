@@ -1,0 +1,57 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: wallabag
+          image: ghcr.io/wallabag/docker:2.6.13
+          ports:
+            - containerPort: 80
+          env:
+            - name: SYMFONY__ENV__DATABASE_DRIVER
+              value: pdo_pgsql
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: wallabag-pg-app
+                  key: user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wallabag-pg-app
+                  key: password
+            - name: SYMFONY__ENV__DATABASE_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: wallabag-pg-app
+                  key: host
+            - name: SYMFONY__ENV__DATABASE_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: wallabag-pg-app
+                  key: port
+            - name: SYMFONY__ENV__DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: wallabag-pg-app
+                  key: dbname
+            - name: SYMFONY__ENV__DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: wallabag-pg-app
+                  key: user
+            - name: SYMFONY__ENV__DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wallabag-pg-app
+                  key: password
+            - name: SYMFONY__ENV__DOMAIN_NAME
+              value: https://wallabag.lamancha-alhena.ts.net
+
+              
+

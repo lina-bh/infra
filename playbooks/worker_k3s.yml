@@ -1,0 +1,30 @@
+---
+- hosts: worker
+  tasks:
+    - register: tf
+      delegate_to: localhost
+      tags:
+        - test_tf
+      no_log: true
+      cloud.terraform.terraform_output:
+        binary_path: tofu
+        project_path: "{{ playbook_dir | dirname }}"
+    - package:
+        state: present
+        name:
+          - k3s
+    - register: conf
+      copy:
+        dest: /etc/conf.d/k3s
+        backup: true
+        content: |
+          export PATH="/usr/libexec/cni/:$PATH"
+          K3S_EXEC="agent"
+          K3S_OPTS="--node-external-ip {{ inventory_hostname }} --node-ip {{ inventory_hostname }} --flannel-iface tailscale0"
+          export K3S_TOKEN='{{ tf.outputs.k3s_token.value }}'
+          export K3S_URL='https://{{ tf.outputs.server_host.value }}:6443'
+    - service:
+        name: k3s
+        enabled: true
+        state: "{{ conf.changed | ternary('restarted', 'started') }}"
+

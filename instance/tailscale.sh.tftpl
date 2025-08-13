@@ -1,0 +1,6 @@
+#!/bin/sh
+set -euxo pipefail
+wget -qO- 'https://tailscale.com/install.sh' | sh
+sleep 5
+rc-service tailscale -S start
+tailscale up --auth-key='${tskey}' --ssh

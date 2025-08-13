@@ -1,0 +1,33 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tailscale
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  namespace: tailscale
+  name: ts-oauth-k8s
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: oci
+  target:
+    name: operator-oauth
+  dataFrom:
+    - extract:
+        key: ts-oauth-k8s
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  namespace: kube-system
+  name: tailscale-operator
+spec:
+  repo: https://pkgs.tailscale.com/helmcharts
+  chart: tailscale-operator
+  targetNamespace: tailscale
+  valuesContent: |                                                                                             
+    apiServerProxyConfig:                                                                                      
+      mode: "true"

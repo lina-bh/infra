@@ -1,0 +1,19 @@
+---
+namespace: default
+namePrefix: miniflux-
+labels:
+  - pairs:
+      app: miniflux
+    includeSelectors: true
+resources:
+  - app-config.yaml
+  - cluster.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+  - cronjob-refresh.yaml
+  - cronjob-cleanup.yaml
+images:
+  - name: miniflux
+    newName: ghcr.io/miniflux/miniflux
+    newTag: "2.2.11-distroless@sha256:0b6acdc4d535f793009844423dfcb997047e1fc420be47a3f5ab2602c6581a1e"

@@ -1,0 +1,26 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: refresh
+spec:
+  schedule: "@hourly"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: refresh
+              image: miniflux
+              envFrom:
+                - configMapRef:
+                    name: miniflux-env
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: miniflux-pg-app
+                      key: fqdn-uri
+              command: ["miniflux", "-refresh-feeds"]
+

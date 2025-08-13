@@ -1,0 +1,7 @@
+.direnv/
+**/.terraform/providers
+**/__pycache__/
+/tmp/
+**/terraform.tfstate*
+.env.local
+manifests/clustersecretstore-oci.yaml

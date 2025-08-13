@@ -1,0 +1,15 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: longhorn-system
+  name: longhorn-frontend
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts: ["longhorn"]
+  defaultBackend:
+    service:
+      name: longhorn-frontend
+      port:
+        name: http

@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  replicas: 1
+  template:
+    spec:
+      # nodeSelector:
+      #   kubernetes.io/arch: amd64
+      initContainers:
+        - name: migrate
+          image: miniflux
+          envFrom:
+            - configMapRef:
+                name: miniflux-env
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: miniflux-pg-app
+                  key: fqdn-uri
+          command: ["miniflux", "-migrate"]
+      containers:
+        - name: app
+          image: miniflux
+          envFrom:
+            - configMapRef:
+                name: miniflux-env
+                optional: false
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: miniflux-pg-app
+                  key: fqdn-uri
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+ 
