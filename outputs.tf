@@ -6,13 +6,3 @@ output "k3s_token" {
 output "server_host" {
   value = try(module.instance[0].tailscale_ip, "")
 }
-
-output "ts_k8s_client_id" {
-  sensitive = true
-  value     = tailscale_oauth_client.k8s.id
-}
-
-output "ts_k8s_client_secret" {
-  sensitive = true
-  value     = tailscale_oauth_client.k8s.key
-}

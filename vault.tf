@@ -15,8 +15,8 @@ resource "oci_kms_key" "primary" {
 }
 
 resource "local_file" "secrets-store-oci_yaml" {
-  filename = "clustersecretstore-oci.yaml"
-  content = templatefile("${path.module}/clustersecretstore-oci.yaml.tftpl", {
+  filename = "${path.module}/manifests/clustersecretstore-oci.yaml"
+  content = templatefile("${path.module}/manifests/clustersecretstore-oci.yaml.tftpl", {
     oci_kms_vault_id = oci_kms_vault.vault.id
   })
   file_permission = "0644"
