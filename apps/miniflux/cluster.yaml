@@ -4,7 +4,7 @@ kind: Cluster
 metadata:
   name: pg
 spec:
-  instances: 2
+  instances: 1
   storage:
     storageClass: longhorn
     size: 1Gi
@@ -13,3 +13,14 @@ spec:
     initdb:
       database: miniflux
       owner: miniflux
+  # backup:
+  #   barmanObjectStore:
+  #     endpointURL: "https://lrejjftxslsd.compat.objectstorage.uk-london-1.oraclecloud.com"
+  #     destinationPath: s3://cnpg/miniflux
+  #     s3Credentials:
+  #       accessKeyId:
+  #         name: cnpg-s3
+  #         key: ACCESS_KEY_ID
+  #       secretAccessKey:
+  #         name: cnpg-s3
+  #         key: ACCESS_SECRET_KEY
