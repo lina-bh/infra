@@ -29,3 +29,8 @@ variable "availability_domains" {
 variable "ansible_groups" {
   type = set(string)
 }
+
+variable "assign_public_ip" {
+  type = bool
+  default = false
+}

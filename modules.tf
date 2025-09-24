@@ -1,6 +1,6 @@
 module "instance" {
   source = "./instance"
-  count  = 4
+  count  = 3
 
   compartment_ocid     = oci_core_subnet.sn.compartment_id
   subnet_ocid          = oci_core_subnet.sn.id
