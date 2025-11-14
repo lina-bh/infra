@@ -8,7 +8,7 @@ resource "tailscale_acl" "acl" {
       {
         src = ["autogroup:member"]
         dst = ["autogroup:self"]
-        ip  = ["tcp:22", "1714-1764", "tcp:2222"]
+        ip  = ["tcp:22", "1714-1764", "tcp:2222", "3389"]
       },
       {
         src = ["autogroup:owner"]
@@ -58,7 +58,7 @@ resource "tailscale_acl" "acl" {
       {
         target = flatten(
           [
-            for device in data.tailscale_devices.devs.devices : device.addresses if contains(["framework", "hmd-global-hmd-fusion"], trimsuffix(device.name, nonsensitive(".${var.tailnet}")))
+            for device in data.tailscale_devices.devs.devices : device.addresses if contains(["framework", "frameworkquadlet", "iphone-15-pro"], trimsuffix(device.name, nonsensitive(".${var.tailnet}")))
           ]
         )
         attr = ["mullvad"]
