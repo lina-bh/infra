@@ -16,4 +16,4 @@ resources:
 images:
   - name: miniflux
     newName: ghcr.io/miniflux/miniflux
-    newTag: "2.2.13-distroless@sha256:38eed52e0a3ff3ecb5ace6f509e9a2ce2079bb673dcd82586a41c0f64160721f"
+    newTag: "2.2.14-distroless"
