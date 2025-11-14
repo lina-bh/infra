@@ -10,6 +10,7 @@ resource "oci_identity_policy" "instance_principal" {
   name           = "instance_principal"
   description    = "permit instances to access oci"
   statements = [
+    "Allow dynamic-group id ${oci_identity_dynamic_group.instances.id} to read vaults in tenancy where target.vault.id = '${oci_kms_vault.vault.id}'",
     "Allow dynamic-group id ${oci_identity_dynamic_group.instances.id} to read secret-family in tenancy"
   ]
 }
