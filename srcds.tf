@@ -74,6 +74,8 @@ data "cloudinit_config" "srcds" {
 }
 
 resource "oci_core_instance" "srcds" {
+  count = 0
+  
   lifecycle {
     ignore_changes = [source_details]
   }
@@ -99,6 +101,6 @@ resource "oci_core_instance" "srcds" {
   }
 }
 
-output "srcds_public_ip" {
-  value = oci_core_instance.srcds.public_ip
-}
+# output "srcds_public_ip" {
+#   value = oci_core_instance.srcds.public_ip
+# }
