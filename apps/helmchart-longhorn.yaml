@@ -1,0 +1,14 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  namespace: kube-system
+  name: longhorn
+spec:
+  repo: https://charts.longhorn.io
+  chart: longhorn
+  version: 1.10.0
+  createNamespace: true
+  targetNamespace: longhorn-system
+  failurePolicy: abort
+---
