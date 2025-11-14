@@ -1,1 +1,1 @@
-{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"gameserver","Source":"./instance","Dir":"instance"},{"Key":"instance","Source":"./instance","Dir":"instance"},{"Key":"micro","Source":"./micro","Dir":"micro"},{"Key":"server","Source":"./instance","Dir":"instance"}]}
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"instance","Source":"./instance","Dir":"instance"}]}
