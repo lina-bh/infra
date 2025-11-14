@@ -1,0 +1,17 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  namespace: kube-system
+  name: cloudnative-pg
+spec:
+  repo: https://cloudnative-pg.github.io/charts
+  chart: cloudnative-pg
+  version: v0.26.1
+  createNamespace: true
+  targetNamespace: cnpg-system
+  set:
+    "rbac.create": "false"
+    "serviceAccount.name": cnpg-manager
+    fullnameOverride: cnpg-controller-manager
+---
