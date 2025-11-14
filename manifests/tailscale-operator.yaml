@@ -27,6 +27,7 @@ metadata:
 spec:
   repo: https://pkgs.tailscale.com/helmcharts
   chart: tailscale-operator
+  version: '1.90.6'
   targetNamespace: tailscale
   valuesContent: |                                                                                             
     apiServerProxyConfig:                                                                                      
