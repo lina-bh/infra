@@ -32,6 +32,7 @@
             k9s
             kubectl
             self.packages.${system}.kubernetes-helm
+            skopeo
           ];
         };
       }
