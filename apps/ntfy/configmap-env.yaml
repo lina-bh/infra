@@ -1,0 +1,7 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env
+data:
+  NTFY_BASE_URL: http://ntfy.lamancha-alhena.ts.net

@@ -1,0 +1,16 @@
+---
+namespace: ntfy
+labels:
+  - pairs:
+      app: ntfy
+    includeSelectors: true
+resources:
+  - namespace.yaml
+  - configmap-env.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+images:
+  - name: ntfy
+    newName: docker.io/binwiederhier/ntfy
+    newTag: "v2.15"
