@@ -5,3 +5,4 @@ metadata:
   name: env
 data:
   NTFY_BASE_URL: http://ntfy.lamancha-alhena.ts.net
+  NTFY_UPSTREAM_BASE_URL: https://ntfy.sh
