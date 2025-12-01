@@ -1,36 +1,12 @@
 ---
+- import_playbook: server_k3s.yml
+- import_playbook: worker_k3s.yml
 - hosts: server worker
   serial:
     - 1
     - "100%"
   tasks:
-    - community.general.apk:
-        name:
-          - iproute2-ss
-          - prometheus-node-exporter
-          - open-iscsi
-          - nfs-utils
-    - service:
-        name: node-exporter
-        enabled: true
-        state: started
-    - service:
-        name: iscsid
-        enabled: true
-        # state: started
-    - command: mount --make-rshared /
-    - register: make_rshared
-      copy:
-        dest: /etc/local.d/make_rshared.start
-        mode: '744'
-        content: |
-          #!/bin/sh
-          exec mount --make-rshared /
-    - service:
-        name: local
-        enabled: true
     - register: upgrade
-      # cmd: apk upgrade
       community.general.apk:
         upgrade: true
     - reboot:

@@ -9,10 +9,7 @@
       cloud.terraform.terraform_output:
         binary_path: tofu
         project_path: "{{ playbook_dir | dirname }}"
-    - package:
-        state: present
-        name:
-          - k3s
+    - import_tasks: shared_root.yml
     - register: conf
       copy:
         dest: /etc/conf.d/k3s
