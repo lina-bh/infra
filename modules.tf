@@ -1,11 +1,19 @@
 module "instance" {
   source = "./instance"
-  count  = 3
+  for_each = tomap({
+    server                   = { arch = "aarch64" },
+    worker-x-constableanemic = { arch = "x86_64" },
+    worker-a-croonpantry     = { arch = "aarch64" },
+    worker-x-drippingstartup = { arch = "x86_64" },
+  })
 
   compartment_ocid     = oci_core_subnet.sn.compartment_id
   subnet_ocid          = oci_core_subnet.sn.id
-  arch                 = count.index % 2 != 0 ? "x86_64" : "aarch64"
-  image_ocids          = local.image_ocids
   availability_domains = local.availability_domains
-  ansible_groups       = [count.index == 0 ? "server" : "worker"]
+
+  name       = each.key
+  arch       = each.value.arch
+  image_ocid = oci_core_image.alpine[each.value.arch].id
+
+  ansible_groups = [each.key == "server" ? "server" : "worker"]
 }

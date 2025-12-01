@@ -15,11 +15,8 @@ variable "subnet_ocid" {
   type = string
 }
 
-variable "image_ocids" {
-  type = object({
-    aarch64 = string
-    x86_64  = string
-  })
+variable "image_ocid" {
+  type = string
 }
 
 variable "availability_domains" {
@@ -31,6 +28,10 @@ variable "ansible_groups" {
 }
 
 variable "assign_public_ip" {
-  type = bool
+  type    = bool
   default = false
+}
+
+variable "name" {
+  type = string
 }

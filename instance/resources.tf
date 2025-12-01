@@ -1,12 +1,4 @@
-resource "random_pet" "vm" {
-  separator = ""
-}
-
 resource "tailscale_tailnet_key" "auth" {
-  lifecycle {
-    replace_triggered_by = [random_pet.vm.id]
-  }
-
   ephemeral     = true
   preauthorized = true
   reusable      = false
@@ -32,8 +24,6 @@ data "cloudinit_config" "meta" {
 resource "oci_core_instance" "vm" {
   lifecycle {
     ignore_changes = [metadata, source_details]
-
-    replace_triggered_by = [random_pet.vm.id]
   }
 
   compartment_id      = var.compartment_ocid
@@ -47,7 +37,7 @@ resource "oci_core_instance" "vm" {
 
   source_details {
     source_type             = "image"
-    source_id               = var.image_ocids[var.arch]
+    source_id               = var.image_ocid
     boot_volume_size_in_gbs = 50
     boot_volume_vpus_per_gb = 20
   }
@@ -66,7 +56,7 @@ resource "oci_core_instance" "vm" {
     are_all_plugins_disabled = true
   }
 
-  display_name = random_pet.vm.id
+  display_name = var.name
 
   metadata = {
     "user_data" = data.cloudinit_config.meta.rendered

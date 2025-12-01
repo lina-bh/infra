@@ -4,7 +4,7 @@ output "k3s_token" {
 }
 
 output "server_host" {
-  value = try(module.instance[0].tailscale_ip, "")
+  value = try(module.instance["server"].tailscale_ip, "")
 }
 
 output "oci_os_ns" {
