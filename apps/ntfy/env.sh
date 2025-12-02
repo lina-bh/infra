@@ -1,0 +1,5 @@
+NTFY_BASE_URL=https://ntfy.lamancha-alhena.ts.net
+NTFY_UPSTREAM_BASE_URL=https://ntfy.sh
+NTFY_BEHIND_PROXY=true
+NTFY_PROXY_TRUSTED_HOSTS=100.64.0.0/10
+NTFY_LOG_LEVEL=warn
