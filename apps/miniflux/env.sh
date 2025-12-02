@@ -5,5 +5,5 @@ BASE_URL=https://miniflux.lamancha-alhena.ts.net
 AUTH_PROXY_HEADER=Tailscale-User-Login
 HTTPS=1
 LOG_LEVEL=debug
-METRICS_COLLECTOR=1
+METRICS_COLLECTOR=0
 DISABLE_SCHEDULER_SERVICE=1
