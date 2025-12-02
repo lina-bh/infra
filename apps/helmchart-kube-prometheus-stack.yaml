@@ -8,6 +8,8 @@ spec:
   chart: oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack
   version: 79.10.0
   set:
-    "grafana.enabled": "false"
+    "grafana.enabled": "true"
     "alertmanager.enabled": "false"
+    "kubeEtcd.enabled": "false"
+    "defaultRules.rules.etcd": "false"
 ---
