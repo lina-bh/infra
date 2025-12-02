@@ -1,0 +1,13 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  namespace: kube-system
+  name: kube-prometheus-stack
+spec:
+  chart: oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack
+  version: 79.10.0
+  set:
+    "grafana.enabled": "false"
+    "alertmanager.enabled": "false"
+---
