@@ -6,7 +6,6 @@ labels:
       app: miniflux
     includeSelectors: true
 resources:
-  - app-config.yaml
   - cluster.yaml
   - deployment.yaml
   - service.yaml
@@ -17,3 +16,7 @@ images:
   - name: miniflux
     newName: ghcr.io/miniflux/miniflux
     newTag: "2.2.14-distroless"
+configMapGenerator:
+  - name: env
+    envs:
+      - env.sh
