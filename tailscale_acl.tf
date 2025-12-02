@@ -46,14 +46,17 @@ resource "tailscale_acl" "acl" {
         dst = data.tailscale_device.kobo.addresses
         ip  = ["tcp:2222"]
       },
-      # oci instances can use vxlan on 8472 udp and apiserver on 6443
+      # oci instances can use
+      # vxlan on 8472 udp
+      # apiserver on 6443
+      # k3s metrics-server on 10250
+      # node-exporter on 9100
       {
         src = ["tag:oci"]
         dst = ["tag:oci"]
-        ip  = ["tcp:6443", "udp:8472"]
+        ip  = ["tcp:6443", "udp:8472", "tcp:10250", "tcp:9100"]
       },
-      # i can connect to apiserver proxy with cluster admin role, and all k8s ingresses
-      # some ingresses do not have authentication (longhorn dashboard)
+      # i can connect to apiserver proxy with cluster admin role
       {
         src = ["lina-bh@github"]
         dst = ["tag:k8s-operator"]
@@ -68,10 +71,18 @@ resource "tailscale_acl" "acl" {
           ]
         }
       },
+      # i can connect to all k8s ingresses
+      # some ingresses do not have authentication (longhorn dashboard)
       {
         src = ["lina-bh@github"]
         dst = ["tag:k8s"]
         ip  = ["tcp:443"]
+      },
+      # i can access all oci instances' node-exporter
+      {
+        src = ["lina-bh@github"]
+        dst = ["tag:oci"]
+        ip  = ["tcp:9100"]
       }
     ]
     ssh = [
