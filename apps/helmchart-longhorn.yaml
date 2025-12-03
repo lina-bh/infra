@@ -11,4 +11,6 @@ spec:
   createNamespace: true
   targetNamespace: longhorn-system
   failurePolicy: abort
+  set:
+    "persistence.reclaimPolicy": Retain
 ---
