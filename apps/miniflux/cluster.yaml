@@ -7,20 +7,5 @@ spec:
   instances: 1
   storage:
     storageClass: longhorn
-    size: 1Gi
+    size: 16Gi
   imageName: ghcr.io/cloudnative-pg/postgresql:17.6-minimal-trixie
-  bootstrap:
-    initdb:
-      database: miniflux
-      owner: miniflux
-  # backup:
-  #   barmanObjectStore:
-  #     endpointURL: "https://lrejjftxslsd.compat.objectstorage.uk-london-1.oraclecloud.com"
-  #     destinationPath: s3://cnpg/miniflux
-  #     s3Credentials:
-  #       accessKeyId:
-  #         name: cnpg-s3
-  #         key: ACCESS_KEY_ID
-  #       secretAccessKey:
-  #         name: cnpg-s3
-  #         key: ACCESS_SECRET_KEY

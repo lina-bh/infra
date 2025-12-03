@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: app
+  name: miniflux
 spec:
   ingressClassName: tailscale
   tls:
@@ -10,7 +10,7 @@ spec:
       - miniflux
   defaultBackend:
     service:
-      name: miniflux-app
+      name: app
       port:
         number: 80
  

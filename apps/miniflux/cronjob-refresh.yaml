@@ -15,12 +15,12 @@ spec:
               image: miniflux
               envFrom:
                 - configMapRef:
-                    name: miniflux-env
+                    name: env
               env:
                 - name: DATABASE_URL
                   valueFrom:
                     secretKeyRef:
-                      name: miniflux-pg-app
+                      name: pg-app
                       key: fqdn-uri
               command: ["miniflux", "-refresh-feeds"]
 

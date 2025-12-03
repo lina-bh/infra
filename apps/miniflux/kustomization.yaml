@@ -1,11 +1,11 @@
 ---
-namespace: default
-namePrefix: miniflux-
+namespace: miniflux
 labels:
   - pairs:
       app: miniflux
     includeSelectors: true
 resources:
+  - namespace.yaml
   - cluster.yaml
   - deployment.yaml
   - service.yaml
