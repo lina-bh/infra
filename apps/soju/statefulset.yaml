@@ -1,0 +1,26 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: app
+spec:
+  template:
+    spec:
+      volumes:
+        - name: config
+          configMap:
+            name: app-config
+        - name: db
+          persistentVolumeClaim:
+            claimName: pvc-db
+      containers:
+        - name: soju
+          image: soju
+          ports:
+            - containerPort: 6667
+          volumeMounts:
+            - name: config
+              mountPath: /soju-config
+              subPath: config
+            - name: db
+              mountPath: /db

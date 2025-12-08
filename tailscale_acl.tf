@@ -78,6 +78,12 @@ resource "tailscale_acl" "acl" {
         dst = ["tag:k8s"]
         ip  = ["tcp:443"]
       },
+      # i can access soju
+      {
+        src = ["lina-bh@github"]
+        dst = ["100.100.24.75"]
+        ip  = ["tcp:6667"]
+      },
       # i can access all oci instances' node-exporter
       {
         src = ["lina-bh@github"]

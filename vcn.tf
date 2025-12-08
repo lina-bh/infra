@@ -50,6 +50,15 @@ resource "oci_core_default_security_list" "acl" {
     }
   }
 
+  egress_security_rules {
+    destination = "0.0.0.0/0"
+    protocol    = local.security_list_protocol.TCP
+    tcp_options {
+      min = 6697
+      max = 6697
+    }
+  }
+
   ingress_security_rules {
     source   = "0.0.0.0/0"
     protocol = local.security_list_protocol.UDP

@@ -1,0 +1,20 @@
+---
+namespace: soju
+namePrefix: soju-
+labels:
+  - pairs:
+      app: soju
+    includeSelectors: true
+resources:
+  - namespace.yaml
+  - pvc-db.yaml
+  - statefulset.yaml
+  - svc-app-irc.yaml
+configMapGenerator:
+  - name: app-config
+    files:
+      - config
+images:
+  - name: soju
+    newName: codeberg.org/emersion/soju
+    newTag: v0.10.1
