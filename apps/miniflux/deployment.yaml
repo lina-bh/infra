@@ -7,6 +7,8 @@ spec:
   replicas: 2
   template:
     spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
       initContainers:
         - name: migrate
           image: miniflux
