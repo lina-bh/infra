@@ -15,7 +15,7 @@ resources:
 images:
   - name: miniflux
     newName: ghcr.io/miniflux/miniflux
-    newTag: "2.2.14-distroless"
+    newTag: "2.2.15-distroless"
 configMapGenerator:
   - name: env
     envs:
