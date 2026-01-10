@@ -9,13 +9,13 @@ data "cloudinit_config" "meta" {
   part {
     filename     = "common.yaml"
     content_type = "text/cloud-config"
-    content      = sensitive(file("${path.module}/common.yaml"))
+    content      = sensitive(file("${path.module}/instance/common.yaml"))
   }
 
   part {
     filename     = "tailscale.sh"
     content_type = "text/x-shellscript"
-    content = templatefile("${path.module}/tailscale.sh.tftpl", {
+    content = templatefile("${path.module}/instance/tailscale.sh.tftpl", {
       tskey = tailscale_tailnet_key.auth.key
     })
   }

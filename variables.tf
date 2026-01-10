@@ -9,3 +9,7 @@ variable "tailnet" {
 variable "alpine_images" {
   type = object({ aarch64 = string, x86_64 = string })
 }
+
+variable "home_prefix" {
+  type = string
+}
