@@ -3,9 +3,10 @@ variable "compartment_ocid" {
 }
 
 variable "tailnet" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
-variable "alpine_images" {
-  type = object({ aarch64 = string, x86_64 = string })
+variable "home_prefix" {
+  type = string
 }

@@ -5,3 +5,4 @@
 **/terraform.tfstate*
 .env.local
 manifests/clustersecretstore-oci.yaml
+.oci/

@@ -1,4 +1,0 @@
----
-plugin: cloud.terraform.terraform_provider
-binary_path: tofu
-search_child_modules: true

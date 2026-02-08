@@ -1,26 +1,13 @@
-data "tailscale_devices" "devs" {
-}
-
-data "tailscale_device" "framework" {
-  name = "framework.${var.tailnet}"
-}
-
-data "tailscale_device" "iphone-15-pro" {
-  name = "iphone-15-pro.${var.tailnet}"
-}
-
-data "tailscale_device" "kobo" {
-  name = "kobo.${var.tailnet}"
-}
-
-locals {
-  kde-connect-devices = flatten([for device in [data.tailscale_device.framework, data.tailscale_device.iphone-15-pro] : device.addresses])
-  mullvad-devices     = local.kde-connect-devices
-}
-
 # https://tailscale.com/kb/1337/acl-syntax
 resource "tailscale_acl" "acl" {
   acl = jsonencode({
+    tagOwners = {
+      "tag:oci" : [],
+      "tag:quadlet" : ["autogroup:owner"],
+      "tag:svc" : [],
+      "tag:server" : ["autogroup:owner"],
+      "tag:exit-node" : ["autogroup:owner"],
+    },
     grants = [
       # connect to one's own devices with SSH
       {
@@ -34,111 +21,57 @@ resource "tailscale_acl" "acl" {
         dst = ["autogroup:tagged"]
         ip  = ["tcp:22"]
       },
-      # my devices can use kde connect and sunshine
+      # my devices can use kde connect, sunshine and ssh on 2222
       {
-        src = local.kde-connect-devices
-        dst = local.kde-connect-devices
-        ip  = ["1714-1746", "tcp:47984-48010", "udp:47998-48000"]
+        src = ["autogroup:owner"]
+        dst = ["autogroup:self"]
+        ip  = ["1714-1746", "tcp:47984-48010", "udp:47998-48000", "tcp:2222"]
       },
-      # unprivileged ssh port for kobo
+      # i can connect to all services HTTPS
       {
-        src = ["lina-bh@github"]
-        dst = data.tailscale_device.kobo.addresses
-        ip  = ["tcp:2222"]
-      },
-      # oci instances can use
-      # vxlan on 8472 udp
-      # apiserver on 6443
-      # k3s metrics-server on 10250
-      # node-exporter on 9100
-      {
-        src = ["tag:oci"]
-        dst = ["tag:oci"]
-        ip  = ["tcp:6443", "udp:8472", "tcp:10250", "tcp:9100"]
-      },
-      # i can connect to apiserver proxy with cluster admin role
-      {
-        src = ["lina-bh@github"]
-        dst = ["tag:k8s-operator"]
-        ip  = ["tcp:443"]
-        app = {
-          "tailscale.com/cap/kubernetes" = [
-            {
-              impersonate = {
-                groups = ["system:masters"]
-              }
-            }
-          ]
-        }
-      },
-      # i can connect to all k8s ingresses
-      # some ingresses do not have authentication (longhorn dashboard)
-      {
-        src = ["lina-bh@github"]
-        dst = ["tag:k8s"]
+        src = ["autogroup:owner"]
+        dst = ["tag:svc", "tag:server"]
         ip  = ["tcp:443"]
       },
-      # i can access soju
       {
-        src = ["lina-bh@github"]
-        dst = ["100.100.24.75"]
-        ip  = ["tcp:6667"]
-      },
-      # i can access all oci instances' node-exporter
-      {
-        src = ["lina-bh@github"]
-        dst = ["tag:oci"]
-        ip  = ["tcp:9100"]
+        src = ["autogroup:member"]
+        dst = ["autogroup:internet"]
+        ip  = ["*"]
       }
     ]
     ssh = [
-      # any user can SSH into their own device as any user
+      # anyone can ssh into their own devices
       {
-        action = "accept"
+        action = "check"
         src    = ["autogroup:member"]
         dst    = ["autogroup:self"]
         users  = ["root", "autogroup:nonroot"]
       },
-      # tailnet owner can SSH into any tagged device
+      # i can connect to oci without confirmation for ansible
       {
         action = "accept"
         src    = ["autogroup:owner"]
-        dst    = ["autogroup:tagged"]
-        users  = ["root", "autogroup:nonroot"]
-      },
+        dst    = ["tag:oci"]
+        users  = ["root"]
+      }
     ]
+    groups = {
+      "group:mullvad" : ["lina-bh@github"],
+    }
     nodeAttrs = [
-      # allow mullvad to static list of devices
+      # allow mullvad to my devices
       {
-        target = local.mullvad-devices
+        target = ["group:mullvad"]
         attr   = ["mullvad"]
       },
-    ]
-    tagOwners = {
-      "tag:oci" : [],
-      "tag:k8s-operator" : [],
-      "tag:k8s" : ["tag:k8s-operator"],
+    ],
+    autoApprovers = {
+      services : {
+        "tag:quadlet" : ["tag:svc"],
+        "tag:oci" : ["tag:svc"],
+        "tag:server" : ["tag:server"]
+      },
+      exitNode = ["tag:exit-node"]
     }
   })
-}
-
-resource "tailscale_oauth_client" "k8s" {
-  depends_on = [tailscale_acl.acl]
-
-  scopes = ["devices:core", "auth_keys"]
-  tags   = ["tag:k8s-operator"]
-}
-
-resource "oci_vault_secret" "ts-oauth-k8s" {
-  compartment_id = oci_kms_vault.vault.compartment_id
-  vault_id       = oci_kms_vault.vault.id
-  key_id         = oci_kms_key.primary.id
-  secret_name    = "ts-oauth-k8s"
-  secret_content {
-    content = base64encode(jsonencode({
-      client_id     = tailscale_oauth_client.k8s.id
-      client_secret = tailscale_oauth_client.k8s.key
-    }))
-    content_type = "BASE64"
-  }
 }

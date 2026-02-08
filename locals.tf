@@ -11,10 +11,10 @@ locals {
     "3" = data.oci_identity_availability_domains.ad.availability_domains[2].name
   }
 
-  image_ocids = {
-    x86_64  = oci_core_image.alpine["x86_64"].id
-    aarch64 = oci_core_image.alpine["aarch64"].id
-  }
+  # image_ocids = {
+  #   x86_64  = oci_core_image.alpine["x86_64"].id
+  #   aarch64 = oci_core_image.alpine["aarch64"].id
+  # }
 
   security_list_protocol = {
     ICMP    = "1"

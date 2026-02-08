@@ -1,0 +1,12 @@
+kind: Pod
+spec:
+  image: miniflux
+  envFrom:
+    - configMapRef:
+        name: env
+  env:
+    - name: DATABASE_URL
+      valueFrom:
+        secretKeyRef:
+          name: pg-app
+          key: fqdn-uri

@@ -1,11 +1,7 @@
-output "k3s_token" {
-  sensitive = true
-  value     = random_password.k3s_token.result
-}
 
-output "server_host" {
-  value = try(module.instance["server"].tailscale_ip, "")
-}
+# output "server_host" {
+#   value = try(module.instance["server"].tailscale_ip, "")
+# }
 
 output "oci_os_ns" {
   value = data.oci_objectstorage_namespace.ns.namespace
