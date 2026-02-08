@@ -6,3 +6,4 @@
 .env.local
 manifests/clustersecretstore-oci.yaml
 .oci/
+inventory.ini
