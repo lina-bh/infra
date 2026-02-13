@@ -1,5 +1,0 @@
-#!/bin/sh
-set -euxo pipefail
-curl -fsSL 'https://tailscale.com/install.sh' | sh
-sleep 5
-tailscale up --auth-key='${tskey}'

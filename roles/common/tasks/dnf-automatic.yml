@@ -1,0 +1,13 @@
+- package:
+    name:
+      - dnf-automatic
+    state: present
+- copy:
+    dest: /etc/dnf/automatic.conf
+    content: |-
+      [commands]
+      apply_updates=True
+      reboot=when-needed
+- systemd_service:
+    name: dnf-automatic.timer
+    enabled: true

@@ -1,0 +1,15 @@
+- name: Set up dnf-automatic
+  when: ansible_facts['os_family'] == 'RedHat'
+  import_tasks: dnf-automatic.yml
+- name: Enable IPv4 forwarding
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    state: present
+    reload: true
+- name: Enable IPv6 forwarding
+  ansible.posix.sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: "1"
+    state: present
+    reload: true

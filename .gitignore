@@ -1,5 +1,5 @@
 .direnv/
-**/.terraform/providers
+**/.terraform/
 **/__pycache__/
 /tmp/
 **/terraform.tfstate*

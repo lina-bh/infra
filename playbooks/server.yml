@@ -1,0 +1,6 @@
+---
+- hosts: server
+  roles:
+    - role: common
+    - role: k3s
+    - role: server

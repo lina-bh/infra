@@ -10,3 +10,8 @@ variable "tailnet" {
 variable "home_prefix" {
   type = string
 }
+
+variable "tskey_api" {
+  type      = string
+  sensitive = true
+}

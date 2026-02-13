@@ -1,31 +1,31 @@
-resource "tailscale_tailnet_key" "arm" {
-  ephemeral     = true
+resource "tailscale_tailnet_key" "tskey_auth" {
+  ephemeral     = false
   preauthorized = true
-  reusable      = false
+  reusable      = true
   tags          = ["tag:oci"]
 }
 
-resource "random_pet" "arm" {
-  separator = ""
+module "cloudinit-tailscale" {
+  source = "github.com/tailscale/terraform-cloudinit-tailscale"
+
+  accept_dns       = false
+  advertise_tags   = ["tag:oci"]
+  advertise_routes = [oci_core_vcn.vcn.cidr_blocks[0]]
+  auth_key         = tailscale_tailnet_key.tskey_auth.key
+  additional_parts = [
+    {
+      filename     = "ssh.yaml"
+      content_type = "text/cloud-config"
+      content      = <<-EOT
+#cloud-config
+ssh_authorized_keys:
+  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBMOCu6tMJ6EcyMpVEOQOF4UYCog1vB1xZha+UzM5U8f"
+EOT
+    }
+  ]
 }
 
-data "cloudinit_config" "arm" {
-  part {
-    filename     = "common.yaml"
-    content_type = "text/cloud-config"
-    content      = sensitive(file("${path.module}/instance/common.yaml"))
-  }
-
-  part {
-    filename     = "tailscale.sh"
-    content_type = "text/x-shellscript"
-    content = templatefile("${path.root}/tailscale.sh.tftpl", {
-      tskey = tailscale_tailnet_key.arm.key
-    })
-  }
-}
-
-resource "oci_core_instance" "arm" {
+resource "oci_core_instance" "server" {
   lifecycle {
     ignore_changes = [metadata, source_details]
   }
@@ -33,25 +33,26 @@ resource "oci_core_instance" "arm" {
   compartment_id      = oci_core_subnet.sn.compartment_id
   availability_domain = local.availability_domains["3"]
 
-  shape = "VM.Standard.A1.Flex"
-  shape_config {
-    ocpus         = 4
-    memory_in_gbs = 24
+  availability_config {
+    # is_live_migration_preferred = true
   }
 
-  source_details {
-    source_type             = "image"
-    source_id               = oci_core_image.fedora_aarch64.id
-    boot_volume_size_in_gbs = 100
-    boot_volume_vpus_per_gb = 20
+  shape = "VM.Standard.A1.Flex"
+  shape_config {
+    ocpus         = 3
+    memory_in_gbs = 18
   }
 
   launch_options {
     firmware     = "UEFI_64"
     network_type = "PARAVIRTUALIZED"
+    # boot_volume_type = "PARAVIRTUALIZED"
+
+    is_consistent_volume_naming_enabled = true
   }
 
   create_vnic_details {
+    # hostname_label = "server"
     subnet_id = oci_core_subnet.sn.id
   }
 
@@ -59,33 +60,33 @@ resource "oci_core_instance" "arm" {
     are_all_plugins_disabled = true
   }
 
-  display_name = random_pet.arm.id
+  display_name = "server"
 
   metadata = {
-    "user_data" = data.cloudinit_config.arm.rendered
+    "user_data" = module.cloudinit-tailscale.rendered
   }
+
+  source_details {
+    source_type             = "image"
+    source_id               = oci_core_image.fedora_aarch64.id
+    boot_volume_size_in_gbs = 50
+    boot_volume_vpus_per_gb = 20
+  }
+
+  preserve_boot_volume = false
+  # is_pv_encryption_in_transit_enabled = true
 }
 
-data "tailscale_device" "arm" {
-  hostname = oci_core_instance.arm.display_name
+data "tailscale_device" "server" {
+  hostname = oci_core_instance.server.display_name
   wait_for = "90s"
-}
-
-output "arm_public_ip" {
-  value = oci_core_instance.arm.public_ip
 }
 
 resource "local_file" "ansible_inventory" {
   filename        = "${path.root}/inventory.ini"
   file_permission = "0644"
   content         = <<EOF
-[fedora]
-${data.tailscale_device.arm.addresses[0]} ansible_user=fedora ansible_become=true ansible_ssh_private_key_file=~/.ssh/oci
+[server]
+${data.tailscale_device.server.addresses[0]} ansible_user=fedora ansible_become=true ansible_ssh_private_key_file=~/.ssh/server
 EOF
-}
-
-resource "oci_core_volume_attachment" "persistent" {
-  attachment_type = "paravirtualized"
-  instance_id     = oci_core_instance.arm.id
-  volume_id       = oci_core_volume.persistent.id
 }

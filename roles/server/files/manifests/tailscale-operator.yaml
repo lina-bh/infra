@@ -8,7 +8,7 @@ apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   namespace: tailscale
-  name: ts-oauth-k8s
+  name: tailscale-operator
 spec:
   secretStoreRef:
     kind: ClusterSecretStore
@@ -17,7 +17,7 @@ spec:
     name: operator-oauth
   dataFrom:
     - extract:
-        key: ts-oauth-k8s
+        key: tailscale_operator
 ---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
@@ -27,8 +27,8 @@ metadata:
 spec:
   repo: https://pkgs.tailscale.com/helmcharts
   chart: tailscale-operator
-  version: "1.90.9"
+  # version: "1.90.9"
   targetNamespace: tailscale
   valuesContent: |
-    apiServerProxyConfig:                                                                                      
+    apiServerProxyConfig:
       mode: "true"

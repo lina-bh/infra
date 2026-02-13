@@ -1,0 +1,37 @@
+- name: Kine quadlet
+  copy:
+    dest: /etc/containers/systemd/kine.container
+    src: kine.container
+- name: /etc/systemd/system/k3s.service.d/kine.conf
+  copy:
+    dest: /etc/systemd/system/k3s.service.d/kine.conf
+    content: |
+      [Unit]
+      Requires=kine.service
+      After=kine.service
+- name: MySQL kine
+  copy:
+    dest: /etc/rancher/k3s/config.yaml.d/mysql.yaml
+    content: |
+      datastore-endpoint: 'http://localhost:2379'
+- name: /var/lib/rancher/k3s/server/manifests/local
+  file:
+    path: /var/lib/rancher/k3s/server/manifests/local
+    state: directory
+- name: Copy manifests
+  ansible.posix.synchronize:
+    dest: /var/lib/rancher/k3s/server/manifests/local
+    recursive: true
+    src: manifests
+- name: daemon-reload
+  systemd_service:
+    daemon_reload: true
+- name: restart-k3s
+  block:
+    - systemd_service:
+        name: k3s.service
+        state: restarted
+    - wait_for:
+        path: /etc/rancher/k3s/k3s.yaml
+    - wait_for:
+        port: 6443

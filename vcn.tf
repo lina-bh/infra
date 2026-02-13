@@ -109,4 +109,22 @@ resource "oci_core_default_security_list" "acl" {
     }
     stateless = false
   }
+
+  ingress_security_rules {
+    source   = oci_core_vcn.vcn.cidr_blocks[0]
+    protocol = local.security_list_protocol.TCP
+    tcp_options {
+      min = 3306
+      max = 3306
+    }
+  }
+
+  egress_security_rules {
+    destination = oci_core_vcn.vcn.cidr_blocks[0]
+    protocol    = local.security_list_protocol.TCP
+    tcp_options {
+      min = 3306
+      max = 3306
+    }
+  }
 }

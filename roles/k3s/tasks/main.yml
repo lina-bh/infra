@@ -1,0 +1,61 @@
+- name: k3s --version
+  register: k3s_version
+  command: k3s --version
+  changed_when: false
+  ignore_errors: true
+- name: Install k3s
+  when: k3s_version.rc != 0
+  block:
+    - get_url:
+        url: https://get.k3s.io/
+        timeout: 120
+        dest: /usr/local/bin/k3s-install.sh
+        owner: root
+        group: root
+        mode: "0744"
+    - command:
+        cmd: /usr/local/bin/k3s-install.sh
+      environment:
+        INSTALL_K3S_SKIP_START: 'true'
+- name: Install cri-o
+  package:
+    name:
+      - cri-o1.34
+      - containernetworking-plugins
+- name: Disable short_name_mode enforcing
+  lineinfile:
+    path: /etc/crio/crio.conf
+    regexp: 'short_name_mode ='
+    line: 'short_name_mode = "disabled"'
+- name: /etc/systemd/system/k3s.service.d/
+  file:
+    path: /etc/systemd/system/k3s.service.d
+    state: directory
+- name: /etc/systemd/system/k3s.service.d/crio.conf
+  copy:
+    dest: /etc/systemd/system/k3s.service.d/crio.conf
+    content: |
+      [Unit]
+      Requires=crio.service
+      After=crio.service
+- name: /etc/rancher/k3s/config.yaml.d
+  file:
+    path: /etc/rancher/k3s/config.yaml.d
+    state: directory
+- name: /etc/rancher/k3s/config.yaml
+  copy:
+    dest: /etc/rancher/k3s/config.yaml
+    content: |
+      disable:
+        - traefik
+      write-kubeconfig-mode: "0644"
+- name: /etc/rancher/k3s/config.yaml.d/crio.yaml
+  copy:
+    dest: /etc/rancher/k3s/config.yaml.d/crio.yaml
+    content: |
+      container-runtime-endpoint: /run/crio/crio.sock
+- name: /etc/rancher/k3s/config.yaml.d/selinux.yaml
+  copy:
+    dest: /etc/rancher/k3s/config.yaml.d/selinux.yaml
+    content: |
+      selinux: true
