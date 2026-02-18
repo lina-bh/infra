@@ -7,3 +7,5 @@
 manifests/clustersecretstore-oci.yaml
 .oci/
 inventory.ini
+.kube/
+.data/helm/plugins

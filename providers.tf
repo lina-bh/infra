@@ -20,7 +20,9 @@ terraform {
     oci = {
       source = "oracle/oci"
     }
-    local = { source = "hashicorp/local" }
+    local      = { source = "hashicorp/local" }
+    helm       = { source = "hashicorp/helm" }
+    kubernetes = { source = "hashicorp/kubernetes" }
   }
 }
 
@@ -30,6 +32,16 @@ provider "oci" {
 
 provider "tailscale" {
   api_key = var.tskey_api
+}
+
+provider "kubernetes" {
+  config_path = "${path.root}/.kube/config"
+}
+
+provider "helm" {
+  kubernetes = {
+    config_path = "${path.root}/.kube/config"
+  }
 }
 
 data "oci_objectstorage_namespace" "ns" {

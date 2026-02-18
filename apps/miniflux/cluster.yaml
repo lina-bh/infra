@@ -7,5 +7,5 @@ spec:
   instances: 1
   storage:
     storageClass: longhorn
-    size: 16Gi
-  imageName: ghcr.io/cloudnative-pg/postgresql:17.6-minimal-trixie
+    size: 1Gi
+  imageName: ghcr.io/cloudnative-pg/postgresql:18-minimal-trixie

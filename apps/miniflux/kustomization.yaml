@@ -5,18 +5,72 @@ labels:
       app: miniflux
     includeSelectors: true
 resources:
-  - namespace.yaml
-  - cluster.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml
-  - cronjob-refresh.yaml
-  - cronjob-cleanup.yaml
+  - cronjob_refresh.yaml
+  - cronjob_cleanup.yaml
+  - cluster.yaml
 images:
   - name: miniflux
     newName: ghcr.io/miniflux/miniflux
-    newTag: "2.2.14-distroless"
+    newTag: "2.2.17-distroless"
+  - name: miniflux-debug
+    newName: ghcr.io/miniflux/miniflux
+    newTag: "2.2.17"
 configMapGenerator:
   - name: env
     envs:
       - env.sh
+patches:
+  - target:
+      kind: Deployment
+      name: miniflux
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: pg-app
+                key: fqdn-uri
+      - op: add
+        path: /spec/template/spec/containers/0/envFrom
+        value:
+          - configMapRef:
+              name: env
+replacements:
+  - source:
+      kind: Deployment
+      name: miniflux
+      fieldPath: spec.template.spec.containers.0.env
+    targets:
+      - select:
+          kind: Deployment
+          labelSelector: app=miniflux
+        fieldPaths:
+          - spec.template.spec.initContainers.*.env
+      - select:
+          kind: CronJob
+          labelSelector: app=miniflux
+        fieldPaths:
+          - spec.jobTemplate.spec.template.spec.containers.*.env
+  - source:
+      kind: Deployment
+      name: miniflux
+      fieldPath: spec.template.spec.containers.0.envFrom
+    targets:
+      - select:
+          kind: Deployment
+          labelSelector: app=miniflux
+        fieldPaths:
+          - spec.template.spec.initContainers.*.envFrom
+      - select:
+          kind: CronJob
+          labelSelector: app=miniflux
+        fieldPaths:
+          - spec.jobTemplate.spec.template.spec.containers.*.envFrom
+replicas:
+  - name: miniflux
+    count: 1

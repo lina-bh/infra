@@ -1,0 +1,21 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: refresh
+spec:
+  schedule: "@hourly"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: refresh
+              image: miniflux
+              env: []
+              envFrom: []
+              command:
+               - miniflux
+               - "-refresh-feeds"
+
