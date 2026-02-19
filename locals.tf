@@ -11,7 +11,7 @@ locals {
     ICMPSIX = "58"
   }
 
-  cluster_ipv4cidr = "10.244.0.0/24"
+  cluster_ipv4cidr = "10.69.0.0/24"
   cluster_ipv6cidr = cidrsubnet(oci_core_vcn.vcn.ipv6cidr_blocks[0], 8, 2)
 
   kube_apiserver_ipv4cidr = "10.67.0.0/24"
@@ -45,5 +45,6 @@ locals {
     oci_core_subnet.kube_apiserver.ipv6cidr_blocks,
   ))
 
-  cluster_tcp_out = { for port in [80, 443] : "${port}" => port }
+  cluster_tcp_out = { for port in [80, 443, 6697] : "${port}" => port }
+  cluster_udp_out = { for port in [3478] : "${port}" => port }
 }

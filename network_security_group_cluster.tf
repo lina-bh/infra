@@ -121,3 +121,21 @@ resource "oci_core_network_security_group_security_rule" "cluster_tcp_out" {
     }
   }
 }
+
+resource "oci_core_network_security_group_security_rule" "cluster_udp_out" {
+  for_each = local.cluster_udp_out
+
+  network_security_group_id = oci_core_network_security_group.cluster.id
+
+  direction        = "EGRESS"
+  destination      = "0.0.0.0/0"
+  destination_type = "CIDR_BLOCK"
+  protocol         = local.security_list_protocol.UDP
+  stateless        = false
+  udp_options {
+    destination_port_range {
+      min = each.value
+      max = each.value
+    }
+  }
+}

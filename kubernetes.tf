@@ -1,4 +1,6 @@
 resource "kubernetes_namespace_v1" "flux-system" {
+  depends_on = [local_file.kubeconfig]
+
   lifecycle {
     ignore_changes = [metadata[0].labels, metadata[0].annotations]
   }

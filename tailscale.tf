@@ -1,6 +1,7 @@
 resource "tailscale_oauth_client" "k8s_operator" {
-  scopes = ["devices:core", "auth_keys", "services"]
-  tags   = ["tag:k8s-operator"]
+  scopes      = ["devices:core", "auth_keys", "services"]
+  tags        = ["tag:k8s-operator"]
+  description = "oke"
 }
 
 resource "oci_vault_secret" "tailscale_operator" {

@@ -4,7 +4,7 @@ resource "oci_core_vcn" "vcn" {
   compartment_id = data.oci_identity_availability_domains.ad.compartment_id
   display_name   = "vcn"
   dns_label      = "vcn0"
-  cidr_blocks    = [local.cluster_ipv4cidr, local.kube_apiserver_ipv4cidr]
+  cidr_blocks    = [local.kube_apiserver_ipv4cidr, local.cluster_ipv4cidr]
   is_ipv6enabled = true
 }
 

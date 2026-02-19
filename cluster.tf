@@ -36,11 +36,7 @@ resource "oci_core_subnet" "cluster" {
   route_table_id             = oci_core_route_table.cluster.id
 }
 
-resource "oci_containerengine_cluster" "oke" {
-  lifecycle {
-    ignore_changes = [options[0].kubernetes_network_config[0].pods_cidr]
-  }
-
+resource "oci_containerengine_cluster" "cluster" {
   compartment_id     = oci_core_vcn.vcn.compartment_id
   vcn_id             = oci_core_vcn.vcn.id
   name               = "cluster"
@@ -55,27 +51,23 @@ resource "oci_containerengine_cluster" "oke" {
 
   options {
     ip_families = ["IPv4", "IPv6"]
-
-    kubernetes_network_config {
-      pods_cidr = "${local.cluster_ipv4cidr},${local.cluster_ipv6cidr}"
-    }
   }
 
   cluster_pod_network_options {
-    cni_type = "OCI_VCN_IP_NATIVE"
+    cni_type = "FLANNEL_OVERLAY"
   }
 }
 
 data "oci_containerengine_node_pool_option" "aarch64" {
-  node_pool_option_id   = oci_containerengine_cluster.oke.id
-  node_pool_k8s_version = oci_containerengine_cluster.oke.kubernetes_version
+  node_pool_option_id   = oci_containerengine_cluster.cluster.id
+  node_pool_k8s_version = oci_containerengine_cluster.cluster.kubernetes_version
   node_pool_os_arch     = "aarch64"
 }
 
 resource "oci_containerengine_node_pool" "vm_standard_a1_flex" {
-  cluster_id         = oci_containerengine_cluster.oke.id
-  compartment_id     = oci_containerengine_cluster.oke.compartment_id
-  kubernetes_version = oci_containerengine_cluster.oke.kubernetes_version
+  cluster_id         = oci_containerengine_cluster.cluster.id
+  compartment_id     = oci_containerengine_cluster.cluster.compartment_id
+  kubernetes_version = oci_containerengine_cluster.cluster.kubernetes_version
   node_shape         = "VM.Standard.A1.Flex"
   name               = "vm_standard_a1_flex"
 
@@ -97,14 +89,14 @@ resource "oci_containerengine_node_pool" "vm_standard_a1_flex" {
 
     is_pv_encryption_in_transit_enabled = true
     node_pool_pod_network_option_details {
-      cni_type          = oci_containerengine_cluster.oke.cluster_pod_network_options[0].cni_type
-      pod_subnet_ids    = [oci_core_subnet.cluster.id]
-      pod_nsg_ids       = [oci_core_network_security_group.cluster.id]
+      cni_type = oci_containerengine_cluster.cluster.cluster_pod_network_options[0].cni_type
+      # pod_subnet_ids    = [oci_core_subnet.cluster.id]
+      # pod_nsg_ids       = [oci_core_network_security_group.cluster.id]
     }
 
     nsg_ids = [oci_core_network_security_group.cluster.id]
 
-    size = var.nodes
+    size = 2
   }
 
   node_source_details {
@@ -115,7 +107,7 @@ resource "oci_containerengine_node_pool" "vm_standard_a1_flex" {
 }
 
 data "oci_containerengine_cluster_kube_config" "kubeconfig" {
-  cluster_id = oci_containerengine_cluster.oke.id
+  cluster_id = oci_containerengine_cluster.cluster.id
 }
 
 resource "local_file" "kubeconfig" {
