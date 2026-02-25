@@ -1,0 +1,17 @@
+namespace: thelounge
+labels:
+  - pairs:
+      app: thelounge
+    includeSelectors: true
+resources:
+- service.yaml
+- statefulset.yaml
+- ingress.yaml
+images:
+- name: thelounge
+  newName: ghcr.io/thelounge/thelounge
+  newTag: "4"
+configMapGenerator:
+- name: config
+  files:
+  - config.js

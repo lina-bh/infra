@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: thelounge
+spec:
+  serviceName: thelounge
+  template:
+    spec:
+      automountServiceAccountToken: false
+      initContainers:
+      - image: thelounge
+        name: chown
+        command:
+        - chown
+        - -R
+        - 1000:1000
+        - /var/opt/thelounge
+        volumeMounts:
+        - name: data
+          mountPath: /var/opt/thelounge
+        securityContext:
+          runAsNonRoot: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+            add:
+              - CHOWN
+              - FOWNER
+      containers:
+      - image: thelounge
+        name: thelounge
+        ports:
+        - containerPort: 9000
+        volumeMounts:
+        - name: data
+          mountPath: /var/opt/thelounge
+        - name: config
+          mountPath: /var/opt/thelounge/config.js
+          subPath: config.js
+        securityContext:
+          readOnlyRootFilesystem: true
+      volumes:
+        - name: config
+          configMap:
+            name: config
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+        - ReadWriteOncePod
+      resources:
+        requests:
+          storage: 1Gi
