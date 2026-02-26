@@ -26,10 +26,6 @@ terraform {
       source = "hashicorp/local"
       version = "2.7.0"
     }
-    helm       = {
-      source = "hashicorp/helm"
-      version = "3.1.1"
-    }
     kubernetes = {
       source = "hashicorp/kubernetes"
       version = "3.0.1"
@@ -47,12 +43,6 @@ provider "tailscale" {
 
 provider "kubernetes" {
   config_path = "${path.root}/.kube/config"
-}
-
-provider "helm" {
-  kubernetes = {
-    config_path = "${path.root}/.kube/config"
-  }
 }
 
 data "oci_objectstorage_namespace" "ns" {
