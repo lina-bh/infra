@@ -45,6 +45,6 @@ locals {
     oci_core_subnet.kube_apiserver.ipv6cidr_blocks,
   ))
 
-  cluster_tcp_out = { for port in [80, 443, 6697] : "${port}" => port }
+  cluster_tcp_out = { for port in [22, 80, 443, 6697] : "${port}" => port }
   cluster_udp_out = { for port in [3478] : "${port}" => port }
 }
