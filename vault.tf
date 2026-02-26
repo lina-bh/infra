@@ -13,24 +13,3 @@ resource "oci_kms_key" "primary" {
     length    = 32
   }
 }
-
-resource "kubernetes_manifest" "clustersecretstore_oci" {
-  depends_on = [kubernetes_manifest.helmrelease_external-secrets]
-
-  manifest = {
-    apiVersion = "external-secrets.io/v1"
-    kind       = "ClusterSecretStore"
-    metadata = {
-      name = "oci"
-    }
-    spec = {
-      provider = {
-        oracle = {
-          vault         = oci_kms_vault.vault.id
-          region        = "uk-london-1"
-          principalType = "InstancePrincipal"
-        }
-      }
-    }
-  }
-}
