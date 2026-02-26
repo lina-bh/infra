@@ -16,11 +16,9 @@ metadata:
   name: cloudnative-pg
   namespace: flux-system
 spec:
-  chart:
-    spec:
-      sourceRef:
-        kind: OCIRepository
-        name: cloudnative-pg
+  chartRef:
+    kind: OCIRepository
+    name: cloudnative-pg
   install:
     createNamespace: true
   interval: 24h
