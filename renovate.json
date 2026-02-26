@@ -3,7 +3,7 @@
   "extends": [
     "config:recommended"
   ],
-  "lockFileMaintenance": {
-    "enabled": true
+  "flux": {
+    "managerFilePatterns": ["/^k8s/.+\\.ya?ml$/"]
   }
 }
