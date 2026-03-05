@@ -1,10 +1,16 @@
-resource "oci_core_subnet" "kube_apiserver" {
-  compartment_id  = oci_core_vcn.vcn.compartment_id
-  vcn_id          = oci_core_vcn.vcn.id
-  dns_label       = "kubeapiserver0"
-  ipv4cidr_blocks = [local.kube_apiserver_ipv4cidr]
-  ipv6cidr_blocks = [local.kube_apiserver_ipv6cidr]
-  display_name    = "kube_apiserver"
+locals {
+  cluster_local_cidrs = toset(concat(
+    oci_core_subnet.cluster.ipv4cidr_blocks,
+    oci_core_subnet.cluster.ipv6cidr_blocks,
+    oci_core_subnet.kubeapiserver.ipv4cidr_blocks,
+    oci_core_subnet.kubeapiserver.ipv6cidr_blocks,
+  ))
+}
+
+data "oci_containerengine_node_pool_option" "aarch64" {
+  node_pool_option_id   = oci_containerengine_cluster.kubeapiserver.id
+  node_pool_k8s_version = oci_containerengine_cluster.kubeapiserver.kubernetes_version
+  node_pool_os_arch     = "aarch64"
 }
 
 resource "oci_core_route_table" "cluster" {
@@ -36,38 +42,14 @@ resource "oci_core_subnet" "cluster" {
   route_table_id             = oci_core_route_table.cluster.id
 }
 
-resource "oci_containerengine_cluster" "cluster" {
-  compartment_id     = oci_core_vcn.vcn.compartment_id
-  vcn_id             = oci_core_vcn.vcn.id
-  name               = "cluster"
-  kubernetes_version = "v1.34.2"
-  type               = "BASIC_CLUSTER"
-
-  endpoint_config {
-    is_public_ip_enabled = true
-    subnet_id            = oci_core_subnet.kube_apiserver.id
-    nsg_ids              = [oci_core_network_security_group.kube_apiserver.id]
-  }
-
-  options {
-    ip_families = ["IPv4", "IPv6"]
-  }
-
-  cluster_pod_network_options {
-    cni_type = "FLANNEL_OVERLAY"
-  }
-}
-
-data "oci_containerengine_node_pool_option" "aarch64" {
-  node_pool_option_id   = oci_containerengine_cluster.cluster.id
-  node_pool_k8s_version = oci_containerengine_cluster.cluster.kubernetes_version
-  node_pool_os_arch     = "aarch64"
-}
-
 resource "oci_containerengine_node_pool" "vm_standard_a1_flex" {
-  cluster_id         = oci_containerengine_cluster.cluster.id
-  compartment_id     = oci_containerengine_cluster.cluster.compartment_id
-  kubernetes_version = oci_containerengine_cluster.cluster.kubernetes_version
+  lifecycle {
+    ignore_changes = [node_source_details[0].image_id]
+  }
+
+  cluster_id         = oci_containerengine_cluster.kubeapiserver.id
+  compartment_id     = oci_containerengine_cluster.kubeapiserver.compartment_id
+  kubernetes_version = oci_containerengine_cluster.kubeapiserver.kubernetes_version
   node_shape         = "VM.Standard.A1.Flex"
   name               = "vm_standard_a1_flex"
 
@@ -89,9 +71,7 @@ resource "oci_containerengine_node_pool" "vm_standard_a1_flex" {
 
     is_pv_encryption_in_transit_enabled = true
     node_pool_pod_network_option_details {
-      cni_type = oci_containerengine_cluster.cluster.cluster_pod_network_options[0].cni_type
-      # pod_subnet_ids    = [oci_core_subnet.cluster.id]
-      # pod_nsg_ids       = [oci_core_network_security_group.cluster.id]
+      cni_type = oci_containerengine_cluster.kubeapiserver.cluster_pod_network_options[0].cni_type
     }
 
     nsg_ids = [oci_core_network_security_group.cluster.id]
@@ -106,12 +86,144 @@ resource "oci_containerengine_node_pool" "vm_standard_a1_flex" {
   }
 }
 
-data "oci_containerengine_cluster_kube_config" "kubeconfig" {
-  cluster_id = oci_containerengine_cluster.cluster.id
+resource "oci_core_network_security_group" "cluster" {
+  compartment_id = oci_core_vcn.vcn.compartment_id
+  vcn_id         = oci_core_vcn.vcn.id
+
+  display_name = "cluster"
 }
 
-resource "local_file" "kubeconfig" {
-  filename        = "${path.root}/.kube/config"
-  file_permission = "0644"
-  content         = sensitive(data.oci_containerengine_cluster_kube_config.kubeconfig.content)
+resource "oci_core_network_security_group_security_rule" "cluster_local_in" {
+  for_each = local.cluster_local_cidrs
+
+  network_security_group_id = oci_core_network_security_group.cluster.id
+
+  direction   = "INGRESS"
+  source      = each.value
+  source_type = "CIDR_BLOCK"
+  protocol    = "all"
+  stateless   = true
+}
+
+resource "oci_core_network_security_group_security_rule" "cluster_local_out" {
+  for_each = local.cluster_local_cidrs
+
+  network_security_group_id = oci_core_network_security_group.cluster.id
+
+  direction        = "EGRESS"
+  destination      = each.value
+  destination_type = "CIDR_BLOCK"
+  protocol         = "all"
+  stateless        = true
+}
+
+resource "oci_core_network_security_group_security_rule" "cluster_icmp_type_3_in" {
+  network_security_group_id = oci_core_network_security_group.cluster.id
+
+  direction   = "INGRESS"
+  source      = "0.0.0.0/0"
+  source_type = "CIDR_BLOCK"
+  protocol    = local.security_list_protocol.ICMP
+  icmp_options {
+    type = 3
+  }
+}
+
+resource "oci_core_network_security_group_security_rule" "cluster_icmp_type_4_in" {
+  network_security_group_id = oci_core_network_security_group.cluster.id
+
+  direction   = "INGRESS"
+  source      = "0.0.0.0/0"
+  source_type = "CIDR_BLOCK"
+  protocol    = local.security_list_protocol.ICMP
+  icmp_options {
+    type = 4
+  }
+}
+
+resource "oci_core_network_security_group_security_rule" "cluster_icmp6_in" {
+  network_security_group_id = oci_core_network_security_group.cluster.id
+
+  direction   = "INGRESS"
+  source      = "::/0"
+  source_type = "CIDR_BLOCK"
+  protocol    = local.security_list_protocol.ICMPSIX
+}
+
+resource "oci_core_network_security_group_security_rule" "cluster_icmp_type_3_out" {
+  network_security_group_id = oci_core_network_security_group.cluster.id
+
+  direction        = "EGRESS"
+  destination      = "0.0.0.0/0"
+  destination_type = "CIDR_BLOCK"
+  protocol         = local.security_list_protocol.ICMP
+  icmp_options {
+    type = 3
+  }
+}
+
+resource "oci_core_network_security_group_security_rule" "cluster_icmp_type_4_out" {
+  network_security_group_id = oci_core_network_security_group.cluster.id
+
+  direction        = "EGRESS"
+  destination      = "0.0.0.0/0"
+  destination_type = "CIDR_BLOCK"
+  protocol         = local.security_list_protocol.ICMP
+  icmp_options {
+    type = 4
+  }
+}
+
+resource "oci_core_network_security_group_security_rule" "cluster_icmp6_out" {
+  network_security_group_id = oci_core_network_security_group.cluster.id
+
+  direction        = "EGRESS"
+  destination      = "::/0"
+  destination_type = "CIDR_BLOCK"
+  protocol         = local.security_list_protocol.ICMPSIX
+}
+
+resource "oci_core_network_security_group_security_rule" "cluster_oci_services" {
+  network_security_group_id = oci_core_network_security_group.cluster.id
+
+  direction        = "EGRESS"
+  destination      = "all-lhr-services-in-oracle-services-network"
+  destination_type = "SERVICE_CIDR_BLOCK"
+  protocol         = local.security_list_protocol.TCP
+}
+
+resource "oci_core_network_security_group_security_rule" "cluster_tcp_out" {
+  for_each = { for port in var.cluster_tcp_out : "${port}" => port }
+
+  network_security_group_id = oci_core_network_security_group.cluster.id
+
+  direction        = "EGRESS"
+  destination      = "0.0.0.0/0"
+  destination_type = "CIDR_BLOCK"
+  protocol         = local.security_list_protocol.TCP
+  stateless        = false
+  tcp_options {
+    destination_port_range {
+      min = each.value
+      max = each.value
+    }
+  }
+}
+
+resource "oci_core_network_security_group_security_rule" "cluster_udp_out" {
+  for_each = { for port in var.cluster_udp_out : "${port}" => port }
+
+  network_security_group_id = oci_core_network_security_group.cluster.id
+
+  direction        = "EGRESS"
+  destination      = "0.0.0.0/0"
+  destination_type = "CIDR_BLOCK"
+  protocol         = local.security_list_protocol.UDP
+  stateless        = false
+  udp_options {
+    destination_port_range {
+      min = each.value
+      max = each.value
+    }
+  }
 }
