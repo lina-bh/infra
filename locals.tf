@@ -23,28 +23,4 @@ locals {
       oci_core_subnet.cluster.ipv6cidr_blocks
     )
   )
-
-  kube_apiserver_tcp_in = {
-    for i in setproduct(
-      local.cluster_cidrs,
-      [6443, 12250]
-    ) : "${i[0]}:${i[1]}" => i
-  }
-
-  kube_apiserver_icmp_in = {
-    for i in setproduct(
-      local.cluster_cidrs,
-      [3, 4]
-    ) : "${i[0]}:${i[1]}" => i
-  }
-
-  cluster_local_cidrs = toset(concat(
-    oci_core_subnet.cluster.ipv4cidr_blocks,
-    oci_core_subnet.cluster.ipv6cidr_blocks,
-    oci_core_subnet.kube_apiserver.ipv4cidr_blocks,
-    oci_core_subnet.kube_apiserver.ipv6cidr_blocks,
-  ))
-
-  cluster_tcp_out = { for port in [22, 80, 443, 6697] : "${port}" => port }
-  cluster_udp_out = { for port in [3478] : "${port}" => port }
 }

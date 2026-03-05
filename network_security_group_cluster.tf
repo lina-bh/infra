@@ -1,3 +1,12 @@
+locals {
+  cluster_local_cidrs = toset(concat(
+    oci_core_subnet.cluster.ipv4cidr_blocks,
+    oci_core_subnet.cluster.ipv6cidr_blocks,
+    oci_core_subnet.kube_apiserver.ipv4cidr_blocks,
+    oci_core_subnet.kube_apiserver.ipv6cidr_blocks,
+  ))
+}
+
 resource "oci_core_network_security_group" "cluster" {
   compartment_id = oci_core_vcn.vcn.compartment_id
   vcn_id         = oci_core_vcn.vcn.id
@@ -105,7 +114,7 @@ resource "oci_core_network_security_group_security_rule" "cluster_oci_services" 
 }
 
 resource "oci_core_network_security_group_security_rule" "cluster_tcp_out" {
-  for_each = local.cluster_tcp_out
+  for_each = { for port in var.cluster_tcp_out : "${port}" => port }
 
   network_security_group_id = oci_core_network_security_group.cluster.id
 
@@ -123,7 +132,7 @@ resource "oci_core_network_security_group_security_rule" "cluster_tcp_out" {
 }
 
 resource "oci_core_network_security_group_security_rule" "cluster_udp_out" {
-  for_each = local.cluster_udp_out
+  for_each = { for port in var.cluster_udp_out : "${port}" => port }
 
   network_security_group_id = oci_core_network_security_group.cluster.id
 

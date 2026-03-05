@@ -37,7 +37,12 @@ resource "oci_core_network_security_group_security_rule" "kube_apiserver_oci_ser
 }
 
 resource "oci_core_network_security_group_security_rule" "kube_apiserver_tcp_in" {
-  for_each = local.kube_apiserver_tcp_in
+  for_each = {
+    for i in setproduct(
+      local.cluster_cidrs,
+      var.kubeapiserver_tcp_in
+    ) : "${i[0]}:${i[1]}" => i
+  }
 
   network_security_group_id = oci_core_network_security_group.kube_apiserver.id
 
@@ -54,7 +59,12 @@ resource "oci_core_network_security_group_security_rule" "kube_apiserver_tcp_in"
 }
 
 resource "oci_core_network_security_group_security_rule" "kube_apiserver_icmp_in" {
-  for_each = local.kube_apiserver_icmp_in
+  for_each = {
+    for i in setproduct(
+      local.cluster_cidrs,
+      var.kubeapiserver_icmp_in
+    ) : "${i[0]}:${i[1]}" => i
+  }
 
   network_security_group_id = oci_core_network_security_group.kube_apiserver.id
 
