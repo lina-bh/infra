@@ -14,10 +14,6 @@ terraform {
   }
 
   required_providers {
-    tailscale = {
-      source  = "tailscale/tailscale"
-      version = "0.28.0"
-    }
     oci = {
       source  = "oracle/oci"
       version = "8.4.0"
@@ -26,23 +22,11 @@ terraform {
       source  = "hashicorp/local"
       version = "2.7.0"
     }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "3.0.1"
-    }
   }
 }
 
 provider "oci" {
   private_key_path = "${path.root}/.oci/pem"
-}
-
-provider "tailscale" {
-  api_key = var.tskey_api
-}
-
-provider "kubernetes" {
-  config_path = "${path.root}/.kube/config"
 }
 
 data "oci_objectstorage_namespace" "ns" {
