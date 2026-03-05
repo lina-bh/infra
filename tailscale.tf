@@ -13,11 +13,11 @@ resource "kubernetes_namespace_v1" "tailscale" {
 resource "kubernetes_secret_v1" "operator_oauth" {
   metadata {
     namespace = kubernetes_namespace_v1.tailscale.metadata[0].name
-    name = "operator-oauth"
+    name      = "operator-oauth"
   }
 
   data = {
-    client_id = tailscale_oauth_client.k8s_operator.id
+    client_id     = tailscale_oauth_client.k8s_operator.id
     client_secret = tailscale_oauth_client.k8s_operator.key
   }
 

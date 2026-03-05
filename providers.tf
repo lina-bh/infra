@@ -15,19 +15,19 @@ terraform {
 
   required_providers {
     tailscale = {
-      source = "tailscale/tailscale"
+      source  = "tailscale/tailscale"
       version = "0.28.0"
     }
     oci = {
-      source = "oracle/oci"
+      source  = "oracle/oci"
       version = "8.4.0"
     }
-    local      = {
-      source = "hashicorp/local"
+    local = {
+      source  = "hashicorp/local"
       version = "2.7.0"
     }
     kubernetes = {
-      source = "hashicorp/kubernetes"
+      source  = "hashicorp/kubernetes"
       version = "3.0.1"
     }
   }
