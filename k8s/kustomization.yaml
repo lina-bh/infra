@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- apps/miniflux
+- apps/thelounge
+- flux-system
+- toolkit.fluxcd.io_cloudnative-pg.yaml
+- toolkit.fluxcd.io_longhorn.yaml
+- toolkit.fluxcd.io_tailscale.yaml
