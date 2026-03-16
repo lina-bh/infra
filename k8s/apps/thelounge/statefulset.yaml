@@ -4,6 +4,7 @@ metadata:
   name: thelounge
 spec:
   serviceName: thelounge
+  replicas: 0
   template:
     spec:
       automountServiceAccountToken: false
@@ -19,6 +20,7 @@ spec:
         - name: data
           mountPath: /var/opt/thelounge
         securityContext:
+          runAsUser: 0
           runAsNonRoot: false
           readOnlyRootFilesystem: true
           capabilities:
@@ -27,6 +29,7 @@ spec:
             add:
               - CHOWN
               - FOWNER
+              - DAC_OVERRIDE
       containers:
       - image: thelounge
         name: thelounge

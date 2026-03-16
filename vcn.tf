@@ -4,17 +4,11 @@ resource "oci_core_vcn" "vcn" {
   compartment_id = data.oci_identity_availability_domains.ad.compartment_id
   display_name   = "vcn"
   dns_label      = "vcn0"
-  cidr_blocks    = [local.kube_apiserver_ipv4cidr, local.cluster_ipv4cidr]
+  cidr_blocks    = [local.kube_apiserver_ipv4cidr, "10.69.0.0/24", "10.70.0.0/24"]
   is_ipv6enabled = true
 }
 
 resource "oci_core_internet_gateway" "inet" {
-  compartment_id = oci_core_vcn.vcn.compartment_id
-
-  vcn_id = oci_core_vcn.vcn.id
-}
-
-resource "oci_core_nat_gateway" "nat" {
   compartment_id = oci_core_vcn.vcn.compartment_id
 
   vcn_id = oci_core_vcn.vcn.id

@@ -19,26 +19,24 @@ resource "oci_core_route_table" "cluster" {
   vcn_id = oci_core_vcn.vcn.id
 
   route_rules {
-    network_entity_id = oci_core_nat_gateway.nat.id
+    network_entity_id = oci_core_internet_gateway.inet.id
     destination       = "0.0.0.0/0"
     destination_type  = "CIDR_BLOCK"
-  }
-
-  route_rules {
-    network_entity_id = oci_core_service_gateway.svc.id
-    destination       = "all-lhr-services-in-oracle-services-network"
-    destination_type  = "SERVICE_CIDR_BLOCK"
   }
 }
 
 resource "oci_core_subnet" "cluster" {
+  lifecycle {
+    create_before_destroy = true
+  }
+
   compartment_id             = oci_core_vcn.vcn.compartment_id
   vcn_id                     = oci_core_vcn.vcn.id
-  dns_label                  = "cluster0"
+  dns_label                  = "cluster1"
   ipv4cidr_blocks            = [local.cluster_ipv4cidr]
   ipv6cidr_blocks            = [local.cluster_ipv6cidr]
   display_name               = "cluster"
-  prohibit_public_ip_on_vnic = true
+  prohibit_public_ip_on_vnic = false
   route_table_id             = oci_core_route_table.cluster.id
 }
 

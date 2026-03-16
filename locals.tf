@@ -11,8 +11,8 @@ locals {
     ICMPSIX = "58"
   }
 
-  cluster_ipv4cidr = "10.69.0.0/24"
-  cluster_ipv6cidr = cidrsubnet(oci_core_vcn.vcn.ipv6cidr_blocks[0], 8, 2)
+  cluster_ipv4cidr = "10.70.0.0/24"
+  cluster_ipv6cidr = cidrsubnet(oci_core_vcn.vcn.ipv6cidr_blocks[0], 8, 3)
 
   kube_apiserver_ipv4cidr = "10.67.0.0/24"
   kube_apiserver_ipv6cidr = cidrsubnet(oci_core_vcn.vcn.ipv6cidr_blocks[0], 8, 1)
