@@ -13,7 +13,7 @@ spec:
           envFrom: []
           command:
           - miniflux
-          - "-version"
+          - "-migrate"
       containers:
         - name: app
           image: miniflux-debug
