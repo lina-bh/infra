@@ -33,11 +33,11 @@ data "oci_containerengine_cluster_kube_config" "kubeconfig" {
   cluster_id = oci_containerengine_cluster.kubeapiserver.id
 }
 
-resource "local_file" "kubeconfig" {
-  filename        = "${path.root}/.kube/config"
-  file_permission = "0400"
-  content         = sensitive(data.oci_containerengine_cluster_kube_config.kubeconfig.content)
-}
+# resource "local_file" "kubeconfig" {
+#   filename        = "${path.root}/.kube/config"
+#   file_permission = "0400"
+#   content         = sensitive(data.oci_containerengine_cluster_kube_config.kubeconfig.content)
+# }
 
 resource "oci_core_network_security_group" "kubeapiserver" {
   compartment_id = oci_core_vcn.vcn.compartment_id

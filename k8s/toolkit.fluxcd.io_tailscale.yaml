@@ -30,3 +30,5 @@ spec:
     proxyConfig:
       image:
         repository: ghcr.io/tailscale/tailscale
+    apiServerProxyConfig:
+      mode: "true"
