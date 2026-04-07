@@ -7,3 +7,5 @@ resources:
 - toolkit.fluxcd.io_cloudnative-pg.yaml
 - toolkit.fluxcd.io_longhorn.yaml
 - toolkit.fluxcd.io_tailscale.yaml
+- backuptarget.longhorn.io_default.yaml
+- recurringjob.longhorn.io_backup.yaml

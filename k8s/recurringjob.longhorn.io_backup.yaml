@@ -1,0 +1,14 @@
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: backup
+  namespace: longhorn-system
+spec:
+  cron: 0 0 ? * TUE
+  name: backup
+  parameters: {}
+  retain: 1
+  task: backup
+status:
+  executionCount: 0
+  ownerID: 10.70.0.34
