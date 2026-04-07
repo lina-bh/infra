@@ -225,3 +225,52 @@ resource "oci_core_network_security_group_security_rule" "cluster_udp_out" {
     }
   }
 }
+
+resource "oci_core_network_security_group_security_rule" "cluster_tailscale_out_dest" {
+  network_security_group_id = oci_core_network_security_group.cluster.id
+
+  direction        = "EGRESS"
+  destination      = "0.0.0.0/0"
+  destination_type = "CIDR_BLOCK"
+  protocol         = local.security_list_protocol.UDP
+  stateless        = true
+  udp_options {
+    destination_port_range {
+      min = 41641
+      max = 41641
+    }
+  }
+}
+
+
+resource "oci_core_network_security_group_security_rule" "cluster_tailscale_out" {
+  network_security_group_id = oci_core_network_security_group.cluster.id
+
+  direction        = "EGRESS"
+  destination      = "0.0.0.0/0"
+  destination_type = "CIDR_BLOCK"
+  protocol         = local.security_list_protocol.UDP
+  stateless        = true
+  udp_options {
+    source_port_range {
+      min = 41641
+      max = 41641
+    }
+  }
+}
+
+resource "oci_core_network_security_group_security_rule" "cluster_tailscale_in" {
+  network_security_group_id = oci_core_network_security_group.cluster.id
+
+  direction   = "INGRESS"
+  source      = "0.0.0.0/0"
+  source_type = "CIDR_BLOCK"
+  protocol    = local.security_list_protocol.UDP
+  stateless   = true
+  udp_options {
+    destination_port_range {
+      min = 41641
+      max = 41641
+    }
+  }
+}
