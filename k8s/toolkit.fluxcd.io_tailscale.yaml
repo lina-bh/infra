@@ -18,7 +18,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: tailscale
-      version: 'v1.94.2'
+      version: '1.96.5'
   interval: 168h
   releaseName: tailscale-operator
   targetNamespace: tailscale
