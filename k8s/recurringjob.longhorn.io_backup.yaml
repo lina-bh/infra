@@ -9,6 +9,3 @@ spec:
   parameters: {}
   retain: 1
   task: backup
-status:
-  executionCount: 0
-  ownerID: 10.70.0.34
