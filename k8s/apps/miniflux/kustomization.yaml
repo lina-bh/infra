@@ -14,10 +14,10 @@ resources:
 images:
   - name: miniflux
     newName: ghcr.io/miniflux/miniflux
-    newTag: "2.3.0-distroless@sha256:3a95fd1f9f75eb55b880004aee4084bb94ad60d8349de302e0b86f8620612311"
+    newTag: "2.3.1-distroless@sha256:6361b075e6189c10f3ac7d18733e467bd3bbf965de2ad5a64a0fb9809456989e"
   - name: miniflux-debug
     newName: ghcr.io/miniflux/miniflux
-    newTag: "2.3.0@sha256:65266db84761d09d999946218adfc91fd7abbd4a1086f74b3ad0e51083e30df2"
+    newTag: "2.3.1@sha256:42f14382a035e9d9bbc33910ca53f72d47177f75c3c638d2c5a85adf5582d538"
 configMapGenerator:
   - name: env
     envs:
