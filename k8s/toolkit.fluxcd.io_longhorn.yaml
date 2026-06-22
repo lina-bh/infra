@@ -18,7 +18,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: longhorn
-      version: "1.11"
+      version: "1.12"
   install:
     createNamespace: true
   interval: 24h
