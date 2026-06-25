@@ -3,7 +3,16 @@
   "extends": [
     "config:recommended"
   ],
+  "packageRules": [
+    {
+      "matchDatasources": ["terraform"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true
+    }
+  ],
   "flux": {
     "managerFilePatterns": ["/^k8s/.+\\.ya?ml$/"]
-  }
+  },
+  "automergeType": "branch",
+  "ignoreTests": true
 }
