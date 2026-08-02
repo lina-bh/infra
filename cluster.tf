@@ -7,12 +7,6 @@ locals {
   ))
 }
 
-data "oci_containerengine_node_pool_option" "aarch64" {
-  node_pool_option_id   = oci_containerengine_cluster.kubeapiserver.id
-  node_pool_k8s_version = oci_containerengine_cluster.kubeapiserver.kubernetes_version
-  node_pool_os_arch     = "aarch64"
-}
-
 resource "oci_core_route_table" "cluster" {
   compartment_id = oci_core_vcn.vcn.compartment_id
 
@@ -38,50 +32,6 @@ resource "oci_core_subnet" "cluster" {
   display_name               = "cluster"
   prohibit_public_ip_on_vnic = false
   route_table_id             = oci_core_route_table.cluster.id
-}
-
-resource "oci_containerengine_node_pool" "vm_standard_a1_flex" {
-  lifecycle {
-    ignore_changes = [node_source_details[0].image_id]
-  }
-
-  cluster_id         = oci_containerengine_cluster.kubeapiserver.id
-  compartment_id     = oci_containerengine_cluster.kubeapiserver.compartment_id
-  kubernetes_version = oci_containerengine_cluster.kubeapiserver.kubernetes_version
-  node_shape         = "VM.Standard.A1.Flex"
-  name               = "vm_standard_a1_flex"
-
-  node_shape_config {
-    memory_in_gbs = 12
-    ocpus         = 2
-  }
-
-  node_config_details {
-    placement_configs {
-      availability_domain = local.availability_domains["1"]
-      subnet_id           = oci_core_subnet.cluster.id
-    }
-
-    placement_configs {
-      availability_domain = local.availability_domains["3"]
-      subnet_id           = oci_core_subnet.cluster.id
-    }
-
-    is_pv_encryption_in_transit_enabled = true
-    node_pool_pod_network_option_details {
-      cni_type = oci_containerengine_cluster.kubeapiserver.cluster_pod_network_options[0].cni_type
-    }
-
-    nsg_ids = [oci_core_network_security_group.cluster.id]
-
-    size = 2
-  }
-
-  node_source_details {
-    source_type             = "image"
-    image_id                = data.oci_containerengine_node_pool_option.aarch64.sources[0].image_id
-    boot_volume_size_in_gbs = 50
-  }
 }
 
 resource "oci_core_network_security_group" "cluster" {

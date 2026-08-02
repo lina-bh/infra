@@ -7,38 +7,6 @@ resource "oci_core_subnet" "kubeapiserver" {
   display_name    = "kubeapiserver"
 }
 
-resource "oci_containerengine_cluster" "kubeapiserver" {
-  compartment_id     = oci_core_vcn.vcn.compartment_id
-  vcn_id             = oci_core_vcn.vcn.id
-  name               = "kubeapiserver"
-  kubernetes_version = "v1.34.2"
-  type               = "BASIC_CLUSTER"
-
-  endpoint_config {
-    is_public_ip_enabled = true
-    subnet_id            = oci_core_subnet.kubeapiserver.id
-    nsg_ids              = [oci_core_network_security_group.kubeapiserver.id]
-  }
-
-  options {
-    ip_families = ["IPv4", "IPv6"]
-  }
-
-  cluster_pod_network_options {
-    cni_type = "FLANNEL_OVERLAY"
-  }
-}
-
-data "oci_containerengine_cluster_kube_config" "kubeconfig" {
-  cluster_id = oci_containerengine_cluster.kubeapiserver.id
-}
-
-# resource "local_file" "kubeconfig" {
-#   filename        = "${path.root}/.kube/config"
-#   file_permission = "0400"
-#   content         = sensitive(data.oci_containerengine_cluster_kube_config.kubeconfig.content)
-# }
-
 resource "oci_core_network_security_group" "kubeapiserver" {
   compartment_id = oci_core_vcn.vcn.compartment_id
   vcn_id         = oci_core_vcn.vcn.id
